@@ -289,7 +289,8 @@
   }
 
   function playHero() {
-    gsap.fromTo('.hero__img', { scale: 1.22 }, { scale: 1.04, duration: 7, ease: 'power2.out' });
+    startHeroVideo();
+    gsap.fromTo('.hero__img', { scale: 1.12 }, { scale: 1.03, duration: 7, ease: 'power2.out' });
     var title = $('.hero__title');
     var tl = gsap.timeline({ delay: 0.1 });
     if (title && title._lines) { title._shown = true; tl.to(title._lines, { yPercent: 0, duration: 1.4, ease: 'power4.out', stagger: 0.14 }, 0); }
@@ -298,7 +299,7 @@
 
 
   /* ---------- Sequência de frames (reel tocando com a rolagem) ---------- */
-  var SEQ = { total: 90, w: 720, h: 1280, split: 0.42, imgs: [], cv: {}, idx: {} };
+  var SEQ = { total: 90, first: 36, w: 720, h: 1280, split: 0.42, imgs: [], cv: {}, idx: {} };
   function seqSrc(i) { return 'assets/frames/f_' + ('000' + (i + 1)).slice(-4) + '.webp'; }
   function seqDraw(key, f) {
     var c = SEQ.cv[key]; if (!c) return;
@@ -315,7 +316,7 @@
   }
   function initSequence() {
     SEQ.drawn = {};
-    [['hero', '.hero__img', 0], ['puxa', '.puxa__img', SEQ.split]].forEach(function (d) {
+    [['puxa', '.puxa__img', SEQ.split]].forEach(function (d) {
       var img = $(d[1]); if (!img) return;
       var c = document.createElement('canvas');
       c.width = SEQ.w; c.height = SEQ.h; c.className = img.className;
@@ -325,7 +326,7 @@
       SEQ.cv[d[0]] = c; SEQ.start = SEQ.start || {}; SEQ.start[d[0]] = d[2];
       c._img = img;
     });
-    var next = 0, active = 0, MAX = 6;
+    var next = SEQ.first, active = 0, MAX = 6;
     function pump() {
       while (active < MAX && next < SEQ.total) {
         (function (i) {
@@ -351,14 +352,34 @@
   }
   function seqSet(key, f) { SEQ.cur[key] = f; seqDraw(key, f); }
 
+
+  /* ---------- Hero: o reel toca sozinho, como um filme ---------- */
+  var heroVideo = null, heroVideoReady = false, heroPlayWanted = false;
+  function initHeroVideo() {
+    var img = $('.hero__img'); if (!img) return;
+    var v = document.createElement('video');
+    v.className = img.className; v.muted = true; v.defaultMuted = true; v.playsInline = true;
+    v.setAttribute('playsinline', ''); v.setAttribute('aria-label', img.alt || ''); v.setAttribute('role', 'img');
+    v.preload = 'auto'; v.poster = img.getAttribute('src'); v.style.visibility = 'hidden';
+    v.src = 'assets/video/hero.mp4';
+    v.addEventListener('canplay', function () {
+      if (heroVideoReady) return;
+      heroVideoReady = true; v.style.visibility = ''; img.style.display = 'none';
+      if (heroPlayWanted) tryPlay();
+    });
+    img.parentNode.insertBefore(v, img);
+    heroVideo = v;
+  }
+  function tryPlay() { if (heroVideo) { var p = heroVideo.play(); if (p && p.catch) p.catch(function () {}); } }
+  function startHeroVideo() { heroPlayWanted = true; if (heroVideoReady) tryPlay(); }
+
   /* ---------- Cenas ---------- */
   function buildScenes() {
     initSequence();
+    initHeroVideo();
     var last = SEQ.total - 1;
     /* Hero: parallax e saída */
     gsap.to('.hero__media', { yPercent: 14, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true } });
-    ScrollTrigger.create({ trigger: '.hero', start: 'top top', end: 'bottom top', onUpdate: function (self) { seqSet('hero', self.progress * SEQ.split * last); } });
-    seqSet('hero', 0);
     gsap.to('.hero__content', { y: -70, opacity: 0, ease: 'none', scrollTrigger: { trigger: '.hero', start: '30% top', end: 'bottom 15%', scrub: true } });
 
     /* Cena 1 – puxa-queijo (pinned) */

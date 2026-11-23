@@ -84,4 +84,4 @@ No GitHub Pages: *Settings → Pages → Deploy from a branch → `main` / root*
 - Mapa: https://share.google/WYURP3n5nlxX6kI5b
 
 ## Vídeo da abertura (hero + cena 1)
-O início do site toca um reel em frames conforme a rolagem: `assets/frames/f_0001.webp … f_0090.webp` (720×1280). Para trocar o vídeo: `ffmpeg -i novo.mp4 -vf "fps=90/<duração>,scale=720:1280" -c:v libwebp -quality 48 assets/frames/f_%04d.webp` e ajustar `SEQ.total` em `js/main.js`. O vídeo original fica em `fonte/` (ignorada pelo Git).
+O hero toca sozinho (sem som) o início do reel: `assets/video/hero.mp4` (6,2 s, 720×1280). Ao rolar, a cena 1 continua o mesmo vídeo em frames que acompanham a rolagem: `assets/frames/f_0037.webp … f_0090.webp`. Para trocar o vídeo, recorte os primeiros ~42% para o `hero.mp4` e fatie o restante com `ffmpeg -vf "fps=90/<duração>,scale=720:1280" -c:v libwebp -quality 48 f_%04d.webp` (ajuste `SEQ.total` e `SEQ.first` em `js/main.js`). O original fica em `fonte/` (ignorada pelo Git).
