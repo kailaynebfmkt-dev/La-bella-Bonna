@@ -36,8 +36,8 @@ arquivo mantendo o mesmo nome (ou atualizar o `src` no `index.html`).
 
 | Arquivo                         | Onde aparece                         | Proporção ideal |
 |---------------------------------|--------------------------------------|-----------------|
-| `hero-puxa-queijo.webp`         | Abertura (hero)                      | vertical 3:4    |
-| `cena1-puxa-queijo.webp`        | Cena 1 – puxa-queijo (tela fixada)   | vertical 3:4    |
+| `hero-poster.webp`              | Hero: imagem de reserva (reduzir movimento / sem JS) | vertical 9:16 |
+| `cena1-poster.webp`             | Cena 1: imagem de reserva            | vertical 9:16   |
 | `card-carne-desfiada.webp`      | Card "Carne desfiada com gorgonzola" | 5:4             |
 | `card-pepperoni.webp`           | Card "Pepperoni"                     | 5:4             |
 | `card-quatro-queijos.webp`      | Card "Quatro queijos"                | 5:4             |
@@ -82,3 +82,6 @@ No GitHub Pages: *Settings → Pages → Deploy from a branch → `main` / root*
 - Pedidos: https://labelladonnapizzaria.saipos.com/la-bella-donna-tramandai
 - Instagram: https://www.instagram.com/labelladonnatramandai/
 - Mapa: https://share.google/WYURP3n5nlxX6kI5b
+
+## Vídeo da abertura (hero + cena 1)
+O início do site toca um reel em frames conforme a rolagem: `assets/frames/f_0001.webp … f_0090.webp` (720×1280). Para trocar o vídeo: `ffmpeg -i novo.mp4 -vf "fps=90/<duração>,scale=720:1280" -c:v libwebp -quality 48 assets/frames/f_%04d.webp` e ajustar `SEQ.total` em `js/main.js`. O vídeo original fica em `fonte/` (ignorada pelo Git).

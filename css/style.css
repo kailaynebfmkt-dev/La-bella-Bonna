@@ -204,7 +204,7 @@ html.is-intro .nav { opacity: 0; }
 .hero { position: relative; min-height: 100vh; min-height: 100svh; display: flex; align-items: flex-end; overflow: hidden; isolation: isolate; background: var(--black); }
 .hero__media { position: absolute; inset: 0; z-index: -2; overflow: hidden; will-change: transform; }
 .hero__media::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(11, 11, 11, .55) 0%, rgba(11, 11, 11, .05) 22%, rgba(11, 11, 11, .4) 38%, rgba(11, 11, 11, .88) 60%, var(--black) 90%); }
-.hero__img { width: 100%; height: 100%; object-fit: cover; object-position: 52% 28%; transform-origin: 50% 40%; }
+.hero__img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 42%; transform-origin: 50% 40%; }
 .hero__pattern { position: absolute; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; color: var(--turq); }
 .pat { position: absolute; width: 150px; height: 150px; opacity: .1; animation: spin 140s linear infinite; }
 .pat--1 { top: 12%; left: -40px; }
@@ -245,7 +245,7 @@ html.is-intro .nav { opacity: 0; }
 /* ---------- 2. CENA 1 – PUXA-QUEIJO ---------- */
 .puxa { position: relative; height: 100vh; height: 100svh; overflow: hidden; background: var(--black); }
 .puxa__frame { position: absolute; inset: 0; overflow: hidden; }
-.puxa__img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 45%; transform-origin: 48% 58%; will-change: transform; }
+.puxa__img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 42%; transform-origin: 50% 50%; will-change: transform; }
 .puxa__shade { position: absolute; inset: 0; background: linear-gradient(0deg, rgba(11, 11, 11, .92) 0%, rgba(11, 11, 11, .45) 38%, rgba(11, 11, 11, .08) 70%); }
 .puxa__label { position: absolute; left: var(--pad); top: calc(var(--nav-h) + 20px); margin: 0; z-index: 3; }
 .puxa__phrases { position: absolute; left: var(--pad); right: var(--pad); bottom: 18vh; z-index: 3; height: clamp(4rem, 14vw, 7rem); }

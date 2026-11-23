@@ -296,10 +296,69 @@
     tl.fromTo('[data-hero="fade"]', { opacity: 0, y: 22 }, { opacity: 1, y: 0, duration: 1.1, ease: 'power3.out', stagger: 0.16, clearProps: 'transform' }, 0.15);
   }
 
+
+  /* ---------- Sequência de frames (reel tocando com a rolagem) ---------- */
+  var SEQ = { total: 90, w: 720, h: 1280, split: 0.42, imgs: [], cv: {}, idx: {} };
+  function seqSrc(i) { return 'assets/frames/f_' + ('000' + (i + 1)).slice(-4) + '.webp'; }
+  function seqDraw(key, f) {
+    var c = SEQ.cv[key]; if (!c) return;
+    var i = Math.max(0, Math.min(SEQ.total - 1, Math.round(f)));
+    var im = SEQ.imgs[i], k = 0;
+    while ((!im || !im.complete || !im.naturalWidth) && k < SEQ.total) { // usa o quadro carregado mais próximo
+      k++;
+      im = SEQ.imgs[i - k];
+      if (!im || !im.naturalWidth) im = SEQ.imgs[i + k];
+    }
+    if (!im || !im.naturalWidth || SEQ.idx[key] === i && SEQ.drawn[key]) return;
+    c.getContext('2d').drawImage(im, 0, 0, SEQ.w, SEQ.h);
+    SEQ.idx[key] = i; SEQ.drawn[key] = true;
+  }
+  function initSequence() {
+    SEQ.drawn = {};
+    [['hero', '.hero__img', 0], ['puxa', '.puxa__img', SEQ.split]].forEach(function (d) {
+      var img = $(d[1]); if (!img) return;
+      var c = document.createElement('canvas');
+      c.width = SEQ.w; c.height = SEQ.h; c.className = img.className;
+      c.setAttribute('role', 'img'); c.setAttribute('aria-label', img.alt || '');
+      c.style.visibility = 'hidden';
+      img.parentNode.insertBefore(c, img);
+      SEQ.cv[d[0]] = c; SEQ.start = SEQ.start || {}; SEQ.start[d[0]] = d[2];
+      c._img = img;
+    });
+    var next = 0, active = 0, MAX = 6;
+    function pump() {
+      while (active < MAX && next < SEQ.total) {
+        (function (i) {
+          var im = new Image(); active++;
+          im.onload = im.onerror = function () {
+            active--;
+            if (im.naturalWidth) {
+              Object.keys(SEQ.cv).forEach(function (key) {
+                var c = SEQ.cv[key];
+                var want = SEQ.cur && SEQ.cur[key] != null ? SEQ.cur[key] : SEQ.start[key] * (SEQ.total - 1);
+                SEQ.drawn[key] = false; seqDraw(key, want);
+                if (SEQ.drawn[key] && c.style.visibility === 'hidden') { c.style.visibility = ''; c._img.style.display = 'none'; }
+              });
+            }
+            pump();
+          };
+          im.src = seqSrc(i); SEQ.imgs[i] = im;
+        })(next++);
+      }
+    }
+    SEQ.cur = {};
+    pump();
+  }
+  function seqSet(key, f) { SEQ.cur[key] = f; seqDraw(key, f); }
+
   /* ---------- Cenas ---------- */
   function buildScenes() {
+    initSequence();
+    var last = SEQ.total - 1;
     /* Hero: parallax e saída */
     gsap.to('.hero__media', { yPercent: 14, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true } });
+    ScrollTrigger.create({ trigger: '.hero', start: 'top top', end: 'bottom top', onUpdate: function (self) { seqSet('hero', self.progress * SEQ.split * last); } });
+    seqSet('hero', 0);
     gsap.to('.hero__content', { y: -70, opacity: 0, ease: 'none', scrollTrigger: { trigger: '.hero', start: '30% top', end: 'bottom 15%', scrub: true } });
 
     /* Cena 1 – puxa-queijo (pinned) */
@@ -317,13 +376,14 @@
         onUpdate: function (self) {
           var p = self.progress;
           gsap.set(bar, { scaleX: p });
+          seqSet('puxa', (SEQ.split + p * (1 - SEQ.split)) * last);
           var i = p < 0.33 ? '01' : p < 0.68 ? '02' : '03';
           if (idxEl.textContent !== i) idxEl.textContent = i;
         }
       }
     });
     ptl.fromTo('.puxa__frame', { clipPath: 'inset(15% 11% 15% 11%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 2.4 }, 0)
-       .fromTo('.puxa__img', { scale: 1 }, { scale: 1.6, duration: 4 }, 0)
+       .fromTo('.puxa__img', { scale: 1 }, { scale: 1.22, duration: 4 }, 0)
        .to(ph[0], { yPercent: 0, duration: 0.45, ease: 'power3.out' }, 0.12)
        .to(ph[0], { yPercent: -118, duration: 0.35, ease: 'power2.in' }, 1.1)
        .to(ph[1], { yPercent: 0, duration: 0.45, ease: 'power3.out' }, 1.3)
